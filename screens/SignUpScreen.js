@@ -3,27 +3,59 @@ import { View, Text, TextInput, StyleSheet, Image, Alert } from "react-native";
 import CustomScreenView from "../components/CustomScreenView";
 import MainBtn from "../components/MainBtn";
 import Colors from "./../utils/colors";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { supabase } from "../utils/supabase";
 
 const SignUpScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
 
-  const signUpHandler = () => {
+  const signUpHandler = async () => {
     if (phoneNumber.length != 9) {
-      Alert.alert(
-        "Por favor, ingresa un número de teléfono válido.", // Alert title
-        error.message, // Alert message, in this case the error message
-        [{ text: "ENTENDIDO", onPress: () => console.log("OK Pressed") }]
-      );
+      alertModal("Por favor, ingresa un número de teléfono válido.");
       return;
     }
+
+    await storePhoneNumber(phoneNumber);
+
+    console.log(phoneNumber);
+
+    const response = await supabase
+      .from("ejemplo_tabla")
+      .insert({ id: 4, name: "Pax" });
+
+    if (response.status === 409) {
+      alertModal("El número de teléfono ya está en uso por otro usuario.");
+      return;
+    }
+
+    if (response.status === 201) {
+      console.log("coronaste el registro fue exitoso");
+      console.log(response);
+    }
   };
+
+  function alertModal(message) {
+    Alert.alert(
+      "Error", // Alert title
+      message, // Alert message
+      [{ text: "ENTENDIDO", onPress: () => console.log("OK Pressed") }]
+    );
+  }
+
+  async function storePhoneNumber(number) {
+    try {
+      await AsyncStorage.setItem("phoneNumber", number);
+    } catch (e) {
+      console.log(e);
+    }
+  }
 
   return (
     <CustomScreenView>
       <Text style={styles.title}>Tu número</Text>
       <View style={styles.input_container}>
         <Image
-          source={require("./../assets/chile_flagg.png")}
+          source={require("./../assets/chile_flag.png")}
           style={styles.flag}
         />
         <Text>+56</Text>
