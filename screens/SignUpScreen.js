@@ -5,6 +5,7 @@ import MainBtn from "../components/MainBtn";
 import Colors from "./../utils/colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "../utils/supabase";
+import * as Location from "expo-location";
 
 const SignUpScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -19,18 +20,35 @@ const SignUpScreen = () => {
 
     console.log(phoneNumber);
 
+    let currentLocation = await Location.getCurrentPositionAsync({});
+
+    console.log(currentLocation);
+
     const response = await supabase
       .from("ejemplo_tabla")
       .insert({ id: 4, name: "Pax" });
 
     if (response.status === 409) {
-      alertModal("El número de teléfono ya está en uso por otro usuario.");
-      return;
+      //     alertModal("El número de teléfono ya está en uso por otro usuario.");
+      //   return;
     }
 
     if (response.status === 201) {
       console.log("coronaste el registro fue exitoso");
       console.log(response);
+    }
+
+    const { status: statusBackground } =
+      await Location.getBackgroundPermissionsAsync();
+
+    console.log(statusBackground);
+    if (statusBackground !== "granted") {
+      const { status } = await Location.requestBackgroundPermissionsAsync();
+      if (status === "granted") {
+        console.log("app ready to go");
+      } else {
+        console.log("permissiones denied");
+      }
     }
   };
 
