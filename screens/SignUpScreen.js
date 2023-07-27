@@ -16,22 +16,22 @@ const SignUpScreen = () => {
       return;
     }
 
+    let currentLocation = await Location.getCurrentPositionAsync({});
+
+    const response = await supabase.from("usuarios").insert({
+      idUsuario: phoneNumber,
+      longitude: currentLocation.coords.longitude,
+      latitude: currentLocation.coords.latitude,
+    });
+
+    if (response.status === 409) {
+      alertModal("El número de teléfono ya está en uso por otro usuario.");
+      return;
+    }
+
     await storePhoneNumber(phoneNumber);
 
     console.log(phoneNumber);
-
-    let currentLocation = await Location.getCurrentPositionAsync({});
-
-    console.log(currentLocation);
-
-    const response = await supabase
-      .from("ejemplo_tabla")
-      .insert({ id: 4, name: "Pax" });
-
-    if (response.status === 409) {
-      //     alertModal("El número de teléfono ya está en uso por otro usuario.");
-      //   return;
-    }
 
     if (response.status === 201) {
       console.log("coronaste el registro fue exitoso");
