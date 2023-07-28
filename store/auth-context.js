@@ -17,7 +17,8 @@ export function AuthContextProvider(props) {
 
   async function getStoredCredentials() {
     try {
-      const storedObject = await AsyncStorage.getItem("authenticationObject");
+      const storedObject = await AsyncStorage.getItem("phoneNumber");
+
       if (storedObject !== null) {
         const parsedObject = JSON.parse(storedObject);
         setCredentials(parsedObject);
