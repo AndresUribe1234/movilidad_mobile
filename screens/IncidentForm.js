@@ -8,11 +8,14 @@ import MainBtn from "../components/MainBtn";
 import AuthContext from "../store/auth-context";
 import { supabase } from "../utils/supabase";
 import Colors from "./../utils/colors";
+import * as Location from "expo-location";
 
 const IncidentForm = () => {
   const [selectedOption, setSelectedOption] = useState("");
   const [textInput, setTextInput] = useState("");
   const navigation = useNavigation();
+  const [locationPermissionInformation, requestPermission] =
+    Location.useForegroundPermissions();
 
   const authctx = useContext(AuthContext);
 
@@ -37,12 +40,19 @@ const IncidentForm = () => {
         return;
       }
 
+      let locationApp;
+
+      if (locationPermissionInformation.status === "granted") {
+        const location = await Location.getCurrentPositionAsync();
+        locationApp = location;
+      }
+
       const textSubmit = textInput.trim();
 
       const response = await supabase.from("incidentes").insert({
         idUsuario: Number(authctx.credentials),
-        longitude: 0,
-        latitude: 0,
+        longitude: locationApp?.coords?.longitude,
+        latitude: locationApp?.coords?.latitude,
         incidente: selectedOption,
         comentarios: textInput !== "" ? textSubmit : null,
       });

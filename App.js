@@ -7,6 +7,7 @@ import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import InitialScreen from "./screens/InitialScreen";
 import IncidentForm from "./screens/IncidentForm";
+import * as Location from "expo-location";
 
 const Stack = createStackNavigator();
 
@@ -22,6 +23,8 @@ export default function App() {
 function Root() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const authctx = useContext(AuthContext);
+  const [locationPermissionInformation, requestPermission] =
+    Location.useForegroundPermissions();
 
   useEffect(() => {
     if (authctx?.credentials?.length === 9) {
@@ -30,6 +33,26 @@ function Root() {
       setIsLoggedIn(false);
     }
   }, [authctx.credentials]);
+
+  useEffect(() => {
+    verifyPermissions();
+  }, []);
+
+  useEffect(() => {
+    verifyPermissions();
+  }, [locationPermissionInformation]);
+
+  async function verifyPermissions() {
+    try {
+      if (locationPermissionInformation.status !== "granted") {
+        const { status, canAskAgain } = await requestPermission();
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  console.log(locationPermissionInformation);
 
   return (
     <NavigationContainer>

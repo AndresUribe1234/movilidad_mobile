@@ -6,10 +6,13 @@ import Colors from "./../utils/colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { supabase } from "./../utils/supabase";
 import AuthContext from "../store/auth-context";
+import * as Location from "expo-location";
 
 const SignUpScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
   const authctx = useContext(AuthContext);
+  const [locationPermissionInformation, requestPermission] =
+    Location.useForegroundPermissions();
 
   const signUpHandler = async () => {
     try {
@@ -18,10 +21,19 @@ const SignUpScreen = () => {
         return;
       }
 
+      let locationApp;
+
+      if (locationPermissionInformation.status === "granted") {
+        const location = await Location.getCurrentPositionAsync();
+        locationApp = location;
+      }
+
+      console.log(locationApp);
+
       const response = await supabase.from("usuarios").insert({
         idUsuario: phoneNumber,
-        longitude: 0,
-        latitude: 0,
+        longitude: locationApp?.coords?.longitude,
+        latitude: locationApp?.coords?.latitude,
       });
 
       if (response.status === 409) {
