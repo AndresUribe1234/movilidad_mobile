@@ -10,14 +10,12 @@ export function AuthContextProvider(props) {
   const [credentials, setCredentials] = useState({});
 
   useEffect(() => {
-    (function () {
-      getStoredCredentials();
-    })();
+    getStoredCredentials();
   }, []);
 
   async function getStoredCredentials() {
     try {
-      const storedObject = await AsyncStorage.getItem("phoneNumber");
+      const storedObject = await AsyncStorage.getItem("credentials");
 
       if (storedObject !== null) {
         const parsedObject = JSON.parse(storedObject);

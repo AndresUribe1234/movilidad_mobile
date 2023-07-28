@@ -10,7 +10,7 @@ const MainBtn = ({ onPress, children, style, ...props }) => {
       style={({ pressed }) => [
         styles.button,
         style,
-        pressed && { backgroundColor: Colors.LighterChileBlue },
+        pressed && { backgroundColor: Colors.btnColorPressed },
       ]}
     >
       {({ pressed }) => (
@@ -24,7 +24,7 @@ const MainBtn = ({ onPress, children, style, ...props }) => {
 
 const styles = StyleSheet.create({
   button: {
-    backgroundColor: Colors.ChileBlue,
+    backgroundColor: Colors.btnColor,
     paddingVertical: 10,
     paddingHorizontal: 15,
     borderRadius: 5,

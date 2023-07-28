@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Movilidad Segura",
-    "slug": "app_transporte_chile",
+    "slug": "movilidad_chile",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -9,20 +9,16 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#0033A0"
+      "backgroundColor": "#7583E4"
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true,
-      "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "Esta aplicación necesita acceder a tu ubicación para brindarte una experiencia personalizada y mejorar nuestros servicios. Por favor, permite el acceso a la ubicación.",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "Esta aplicación necesita acceder a tu ubicación para brindarte una experiencia personalizada y mejorar nuestros servicios. Por favor, permite el acceso a la ubicación."
-      }
+      "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#0033A0"
+        "backgroundColor": "#7583E4"
       },
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
@@ -30,22 +26,14 @@
         "android.permission.FOREGROUND_SERVICE",
         "android.permission.ACCESS_BACKGROUND_LOCATION"
       ],
-      "package": "movilidad.phd.uno"
+      "package": "com.andresuribe1234.movilidad_chile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      [
-        "expo-location",
-        {
-          "locationAlwaysAndWhenInUsePermission": "Allow app to use your location."
-        }
-      ]
-    ],
     "extra": {
       "eas": {
-        "projectId": "309a0fc4-f03f-45ae-b0d9-7c333440dd66"
+        "projectId": "85436cf2-6736-4398-ae33-249d50005575"
       }
     }
   }

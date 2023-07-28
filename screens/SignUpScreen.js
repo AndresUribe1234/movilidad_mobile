@@ -1,54 +1,52 @@
-import React, { useState } from "react";
+import { useState, useContext } from "react";
 import { View, Text, TextInput, StyleSheet, Image, Alert } from "react-native";
 import CustomScreenView from "../components/CustomScreenView";
 import MainBtn from "../components/MainBtn";
 import Colors from "./../utils/colors";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { supabase } from "../utils/supabase";
+import { supabase } from "./../utils/supabase";
+import AuthContext from "../store/auth-context";
 import * as Location from "expo-location";
 
 const SignUpScreen = () => {
   const [phoneNumber, setPhoneNumber] = useState("");
+  const authctx = useContext(AuthContext);
+  const [locationPermissionInformation, requestPermission] =
+    Location.useForegroundPermissions();
 
   const signUpHandler = async () => {
-    if (phoneNumber.length != 9) {
-      alertModal("Por favor, ingresa un número de teléfono válido.");
-      return;
-    }
-
-    let currentLocation = await Location.getCurrentPositionAsync({});
-
-    const response = await supabase.from("usuarios").insert({
-      idUsuario: phoneNumber,
-      longitude: currentLocation.coords.longitude,
-      latitude: currentLocation.coords.latitude,
-    });
-
-    if (response.status === 409) {
-      alertModal("El número de teléfono ya está en uso por otro usuario.");
-      return;
-    }
-
-    await storePhoneNumber(phoneNumber);
-
-    console.log(phoneNumber);
-
-    if (response.status === 201) {
-      console.log("coronaste el registro fue exitoso");
-      console.log(response);
-    }
-
-    const { status: statusBackground } =
-      await Location.getBackgroundPermissionsAsync();
-
-    console.log(statusBackground);
-    if (statusBackground !== "granted") {
-      const { status } = await Location.requestBackgroundPermissionsAsync();
-      if (status === "granted") {
-        console.log("app ready to go");
-      } else {
-        console.log("permissiones denied");
+    try {
+      if (phoneNumber.length != 9) {
+        alertModal("Por favor, ingresa un número de teléfono válido.");
+        return;
       }
+
+      let locationApp;
+
+      if (locationPermissionInformation.status === "granted") {
+        const location = await Location.getCurrentPositionAsync();
+        locationApp = location;
+      }
+
+      console.log(locationApp);
+
+      const response = await supabase.from("usuarios").insert({
+        idUsuario: phoneNumber,
+        longitude: locationApp?.coords?.longitude,
+        latitude: locationApp?.coords?.latitude,
+      });
+
+      if (response.status === 409) {
+        alertModal("El número de teléfono ya está en uso por otro usuario.");
+        return;
+      }
+
+      const credetentialsObject = { phoneNumber, logged: true };
+
+      await storePhoneNumber(credetentialsObject);
+      authctx.credentialsFxn(credetentialsObject);
+    } catch (err) {
+      console.log(err);
     }
   };
 
@@ -60,9 +58,10 @@ const SignUpScreen = () => {
     );
   }
 
-  async function storePhoneNumber(number) {
+  async function storePhoneNumber(credentials) {
     try {
-      await AsyncStorage.setItem("phoneNumber", number);
+      const objectToStore = JSON.stringify(credentials);
+      await AsyncStorage.setItem("credentials", objectToStore);
     } catch (e) {
       console.log(e);
     }
@@ -83,7 +82,7 @@ const SignUpScreen = () => {
           keyboardType="phone-pad"
           onChangeText={(text) => setPhoneNumber(text)}
           value={phoneNumber}
-          selectionColor={Colors.ChileRed}
+          selectionColor={Colors.btnColor}
         />
       </View>
       <MainBtn style={styles.button} onPress={signUpHandler}>
