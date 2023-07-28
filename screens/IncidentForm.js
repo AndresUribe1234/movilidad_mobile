@@ -50,7 +50,7 @@ const IncidentForm = () => {
       const textSubmit = textInput.trim();
 
       const response = await supabase.from("incidentes").insert({
-        idUsuario: Number(authctx.credentials),
+        idUsuario: Number(authctx.credentials.phoneNumber),
         longitude: locationApp?.coords?.longitude,
         latitude: locationApp?.coords?.latitude,
         incidente: selectedOption,

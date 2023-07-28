@@ -30,6 +30,8 @@ TaskManager.defineTask(TASK_NAME, async ({ data, error }) => {
       const storedObject = await AsyncStorage.getItem("phoneNumber");
       if (storedObject !== null) {
         const parsedObject = JSON.parse(storedObject);
+        console.log("");
+        console.log("before insert");
         const response = await supabase.from("ubicaciones").insert({
           idUsuario: Number(parsedObject),
           longitude: location?.coords?.longitude,
@@ -57,9 +59,16 @@ function Root() {
   const [locationPermissionBackgroundInformation, requestPermissionBackground] =
     Location.useBackgroundPermissions();
 
+  console.log("authctx:", authctx);
+
   useEffect(() => {
-    if (authctx?.credentials?.length === 9) {
-      setIsLoggedIn(true);
+    if (authctx.credentials) {
+      if (
+        authctx.credentials.logged &&
+        authctx.credentials.phoneNumber.length === 9
+      ) {
+        setIsLoggedIn(true);
+      }
     } else {
       setIsLoggedIn(false);
     }
@@ -102,14 +111,18 @@ function Root() {
     (async function () {
       try {
         console.log("Hi mom!");
-
+        await Location.startLocationUpdatesAsync(TASK_NAME, {
+          accuracy: Location.Accuracy.Balanced,
+          timeInterval: 10000, // Update every 10 seconds
+          distanceInterval: 0, // Do not update based on the distance
+          showsBackgroundLocationIndicator: true,
+        });
         // Make sure the task is defined otherwise do not start tracking
         const isTaskDefined = await TaskManager.isTaskDefined(TASK_NAME);
         if (!isTaskDefined) {
           console.log("Task is not defined");
           return;
         }
-
         // Don't track if it is already running in background
         const hasStarted = await Location.hasStartedLocationUpdatesAsync(
           TASK_NAME
@@ -118,11 +131,7 @@ function Root() {
           console.log("Already started");
           return;
         }
-
-        await Location.startLocationUpdatesAsync(TASK_NAME, {
-          showsBackgroundLocationIndicator: true,
-          timeInterval: 5000,
-        });
+        console.log("before end of code block");
       } catch (err) {
         console.log("from task that launches location:", err);
       }

@@ -41,8 +41,10 @@ const SignUpScreen = () => {
         return;
       }
 
-      await storePhoneNumber(phoneNumber);
-      authctx.credentialsFxn(phoneNumber);
+      const credetentialsObject = { phoneNumber, logged: true };
+
+      await storePhoneNumber(credetentialsObject);
+      authctx.credentialsFxn(credetentialsObject);
     } catch (err) {
       console.log(err);
     }
@@ -56,9 +58,10 @@ const SignUpScreen = () => {
     );
   }
 
-  async function storePhoneNumber(number) {
+  async function storePhoneNumber(credentials) {
     try {
-      await AsyncStorage.setItem("phoneNumber", number);
+      const objectToStore = JSON.stringify(credentials);
+      await AsyncStorage.setItem("credentials", objectToStore);
     } catch (e) {
       console.log(e);
     }
