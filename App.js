@@ -8,8 +8,37 @@ import { createStackNavigator } from "@react-navigation/stack";
 import InitialScreen from "./screens/InitialScreen";
 import IncidentForm from "./screens/IncidentForm";
 import * as Location from "expo-location";
+import * as TaskManager from "expo-task-manager";
+import { supabase } from "./utils/supabase";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Stack = createStackNavigator();
+
+const TASK_NAME = "BACKGROUND_LOCATION_TASK";
+
+TaskManager.defineTask(TASK_NAME, async ({ data, error }) => {
+  if (error) {
+    console.error(error);
+    return;
+  }
+  if (data) {
+    const { locations } = data;
+    const location = locations[0];
+
+    if (location) {
+      console.log("location from task:", location);
+      const storedObject = await AsyncStorage.getItem("phoneNumber");
+      if (storedObject !== null) {
+        const parsedObject = JSON.parse(storedObject);
+        const response = await supabase.from("ubicaciones").insert({
+          idUsuario: Number(parsedObject),
+          longitude: location?.coords?.longitude,
+          latitude: location?.coords?.latitude,
+        });
+      }
+    }
+  }
+});
 
 export default function App() {
   return (
@@ -25,6 +54,8 @@ function Root() {
   const authctx = useContext(AuthContext);
   const [locationPermissionInformation, requestPermission] =
     Location.useForegroundPermissions();
+  const [locationPermissionBackgroundInformation, requestPermissionBackground] =
+    Location.useBackgroundPermissions();
 
   useEffect(() => {
     if (authctx?.credentials?.length === 9) {
@@ -36,10 +67,12 @@ function Root() {
 
   useEffect(() => {
     verifyPermissions();
+    verifyPermissionsBackground();
   }, []);
 
   useEffect(() => {
     verifyPermissions();
+    verifyPermissionsBackground();
   }, [locationPermissionInformation]);
 
   async function verifyPermissions() {
@@ -52,7 +85,49 @@ function Root() {
     }
   }
 
-  console.log(locationPermissionInformation);
+  async function verifyPermissionsBackground() {
+    try {
+      if (locationPermissionBackgroundInformation.status !== "granted") {
+        const { status, canAskAgain } = await requestPermissionBackground();
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
+  if (
+    locationPermissionBackgroundInformation &&
+    locationPermissionBackgroundInformation.status === "granted"
+  ) {
+    (async function () {
+      try {
+        console.log("Hi mom!");
+
+        // Make sure the task is defined otherwise do not start tracking
+        const isTaskDefined = await TaskManager.isTaskDefined(TASK_NAME);
+        if (!isTaskDefined) {
+          console.log("Task is not defined");
+          return;
+        }
+
+        // Don't track if it is already running in background
+        const hasStarted = await Location.hasStartedLocationUpdatesAsync(
+          TASK_NAME
+        );
+        if (hasStarted) {
+          console.log("Already started");
+          return;
+        }
+
+        await Location.startLocationUpdatesAsync(TASK_NAME, {
+          showsBackgroundLocationIndicator: true,
+          timeInterval: 5000,
+        });
+      } catch (err) {
+        console.log("from task that launches location:", err);
+      }
+    })();
+  }
 
   return (
     <NavigationContainer>
