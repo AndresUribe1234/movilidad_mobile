@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "movilidad_chile",
+    "name": "Movilidad Segura",
     "slug": "movilidad_chile",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -9,22 +9,26 @@
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#7583E4"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      }
+        "backgroundColor": "#7583E4"
+      },
+      "package": "com.andresuribe1234.movilidad_chile"
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "85436cf2-6736-4398-ae33-249d50005575"
+      }
     }
   }
 }
