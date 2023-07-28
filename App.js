@@ -54,6 +54,7 @@ export default function App() {
 function Root() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const authctx = useContext(AuthContext);
+  const [loading, setLoading] = useState(true);
   const [locationPermissionInformation, requestPermission] =
     Location.useForegroundPermissions();
   const [locationPermissionBackgroundInformation, requestPermissionBackground] =
